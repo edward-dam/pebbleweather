@@ -1,0 +1,60 @@
+{
+    "author": "Edward Dam",
+    "dependencies": {
+        "pebble-clay": "^1.0.0",
+        "pebblejs": "^1.0.0"
+    },
+    "keywords": [],
+    "name": "weather-v1.0",
+    "pebble": {
+        "capabilities": [
+            "configurable"
+        ],
+        "displayName": "Weather v1.0",
+        "enableMultiJS": true,
+        "messageKeys": [
+            "message_keys",
+            "temp_degrees"
+        ],
+        "projectType": "native",
+        "resources": {
+            "media": [
+                {
+                    "file": "images/splash.png",
+                    "name": "SPLASH",
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/menu_icon.png",
+                    "menuIcon": true,
+                    "name": "MENU_ICON",
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite"
+                    ],
+                    "type": "bitmap"
+                }
+            ]
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "basalt",
+            "chalk",
+            "diorite"
+        ],
+        "uuid": "4399114e-b1d0-4140-b19c-9537eb164098",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}
