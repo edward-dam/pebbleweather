@@ -7,6 +7,8 @@
 ###screenshots
 
 ![basalt.png](/assets/basalt.png)
+![basalt-daily.png](/assets/basalt-daily.png)
+![basalt-hourly.png](/assets/basalt-hourly.png)
 
 ###banner
 
