@@ -3,7 +3,7 @@
 module.exports = [
   {
     "type": "heading",
-    "defaultValue": "Weather v1.0"
+    "defaultValue": "Weather v1.1"
   },
   {
     "type": "text",

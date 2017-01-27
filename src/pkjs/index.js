@@ -17,9 +17,14 @@ var Settings = require('pebblejs/settings');
 // collect api data
 var gpsLatitude;
 var gpsLongitude;
-var token = '6dc8bde763d1816f2e3f249ec11ee48f';
-//console.log('Saved apidata: ' + Settings.data('weatherapi'));
-collectgpslocation(collectweatherdata);
+var apiKeyDark = '6dc8bde763d1816f2e3f249ec11ee48f';
+var apiKeyOpen = '42efb17b4ad3d4a52025106d13376d96';
+//console.log('Saved darkapidata: ' + Settings.data('weatherdarkapi'));
+//console.log('Saved openapidata: ' + Settings.data('weatheropenapi'));
+collectgpslocation(function() {
+  collecthourlyweatherdata();
+  collectdailyweatherdata();
+});
 
 // definitions
 var window = new UI.Window();
@@ -77,7 +82,7 @@ mainWind.on('click', 'down', function(e) {
   downText.position(position(-5));
   downHead.font(fontMedium);
   downText.font(fontSmall);
-  downHead.text('Weather v1.0');
+  downHead.text('Weather v1.1');
   downText.text('by Edward Dam');
   downWind.add(downHead);
   downWind.add(downText);
@@ -88,15 +93,17 @@ mainWind.on('click', 'down', function(e) {
 mainWind.on('click', 'select', function(e) {
 
   // load collected api data
-  var apidata = Settings.data('weatherapi');
-  //console.log('Loaded apidata: ' + apidata);
+  var darkapidata = Settings.data('weatherdarkapi');
+  var openapidata = Settings.data('weatheropenapi');
+  //console.log('Loaded darkapidata: ' + darkapidata);
+  //console.log('Loaded openapidata: ' + openapidata);
   
   // load options
   var options = JSON.parse(localStorage.getItem('clay-settings'));
   //console.log('Loaded temp_degrees option: ' + options.temp_degrees);
   
   // determine currently api data
-  var currentData = apidata.currently;
+  var currentData = darkapidata.currently;
   var currentSummary = currentData.summary;
   var currentTemperature = Math.round(currentData.apparentTemperature) + '°';
   if ( options !== null ) {
@@ -107,7 +114,7 @@ mainWind.on('click', 'select', function(e) {
 
   // determine hourly api data
   for (var i = 1; i < 25; i++) {
-    var hourlyData = apidata.hourly.data[i];
+    var hourlyData = darkapidata.hourly.data[i];
     determinetime(hourlyData);
     determinetemp(hourlyData);
     determinesummary(hourlyData, "hourlySummary", i);
@@ -118,7 +125,7 @@ mainWind.on('click', 'select', function(e) {
   
   // determine daily api data
   for (var j = 0; j < 8; j++) {
-    var dailyData = apidata.daily.data[j];
+    var dailyData = openapidata.list[j];
     determineweekday(dailyData);
     determinetempmin(dailyData);
     determinetempmax(dailyData);
@@ -144,7 +151,7 @@ mainWind.on('click', 'select', function(e) {
   for (j = 1; j < 8; j++) {
     weatherMenu.item(1, j-1, { icon: icon,
       title: window["dailyWeekday" + j], 
-      subtitle: window["dailyTempMax" + j] + ' ' + window["dailySummary" + j]
+      subtitle: window["dailyTempMax" + j] + '/' + window["dailyTempMin" + j] + ' ' + window["dailySummary" + j]
     });
   }
   weatherMenu.show();
@@ -184,7 +191,7 @@ mainWind.on('click', 'select', function(e) {
   
   // function determine weekday
   function determineweekday(data) {
-    var time = new Date(data.time*1000);
+    var time = new Date(data.dt*1000);
     var daynames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     var weekday = daynames[time.getDay()];
     window["dailyWeekday" + j] = weekday;
@@ -203,10 +210,10 @@ mainWind.on('click', 'select', function(e) {
   
   // function determine temp min
   function determinetempmin(data) {
-    var temperature = Math.round(data.temperatureMin) + '°';
+    var temperature = Math.round((data.temp.min - 273.15) * 9 / 5 + 32) + '°';
     if ( options !== null ) {
       if ( options.temp_degrees === "celsius" ) {
-        temperature = Math.round((data.temperatureMin - 32) * 5 / 9) + '°';
+        temperature = Math.round(data.temp.min - 273.15) + '°';
       }
     }
     window["dailyTempMin" + j] = temperature;
@@ -214,10 +221,10 @@ mainWind.on('click', 'select', function(e) {
   
   // function determine temp max
   function determinetempmax(data) {
-    var temperature = Math.round(data.temperatureMax) + '°';
+    var temperature = Math.round((data.temp.max - 273.15) * 9 / 5 + 32) + '°';
     if ( options !== null ) {
       if ( options.temp_degrees === "celsius" ) {
-        temperature = Math.round((data.temperatureMax - 32) * 5 / 9) + '°';
+        temperature = Math.round(data.temp.max - 273.15) + '°';
       }
     }
     window["dailyTempMax" + j] = temperature;
@@ -225,10 +232,15 @@ mainWind.on('click', 'select', function(e) {
 
   // function determine summary
   function determinesummary(data, variable, index) {
-    var summary = data.summary;
-    var cutdown = summary.split(' ').slice(0,2).join(' ');
-    window[variable + index] = cutdown;
+    var summary;
+    if ( variable === "hourlySummary" ) {
+      summary = data.summary;
+    } else {
+      summary = data.weather[0].main;
+    }
+    window[variable + index] = summary;
   }
+
 });
 
 // functions
@@ -244,14 +256,26 @@ function collectgpslocation(callback) {
   });
 }
 
-function collectweatherdata() {
-  var url = 'https://api.darksky.net/forecast/' + token + '/' +
+function collecthourlyweatherdata() {
+  var url = 'https://api.darksky.net/forecast/' + apiKeyDark + '/' +
   gpsLatitude + ',' + gpsLongitude + '?exclude=[minutely,alerts,flags]';
   //console.log('url: ' + url);
   ajax({ url: url, method: 'get', type: 'json' },
     function(api){
       //console.log('Collected apidata: ' + api);
-      Settings.data('weatherapi', api);
+      Settings.data('weatherdarkapi', api);
+    }
+  );
+}
+
+function collectdailyweatherdata() {
+  var url = 'http://api.openweathermap.org/data/2.5/forecast/daily?lat=' +
+  gpsLatitude + '&lon=' + gpsLongitude + '&appid=' + apiKeyOpen + '&cnt=8';
+  //console.log('url: ' + url);
+  ajax({ url: url, method: 'get', type: 'json' },
+    function(api){
+      //console.log('Collected apidata: ' + api);
+      Settings.data('weatheropenapi', api);
     }
   );
 }
