@@ -135,16 +135,16 @@ mainWind.on('click', 'select', function(e) {
     backgroundColor: backgroundColor, highlightTextColor: highlightTextColor,
     status: { separator: 'none', color: textColor, backgroundColor: backgroundColor }
   });
-  weatherMenu.section(0, { title: "Today" });
+  weatherMenu.section(0, { title: "Today's Weather" });
   weatherMenu.item(0, 0, { icon: icon,
-    title: window.dailySummary1, 
-    subtitle: 'Min: ' + window.dailyTempMin1 + ' Max: ' + window.dailyTempMax1
+    title: window.dailySummary1,
+    subtitle: 'Max: ' + window.dailyTempMax1 + ' Min: ' + window.dailyTempMin1
   });
+  weatherMenu.section(1, { title: "7 Day Forecast" });
   for (j = 1; j < 8; j++) {
-    weatherMenu.section(j, { title: window["dailyWeekday" + j] });
-    weatherMenu.item(j, 0, { icon: icon,
-      title: window["dailySummary" + j], 
-      subtitle: 'Min: ' + window["dailyTempMin" + j] + ' Max: ' + window["dailyTempMax" + j]
+    weatherMenu.item(1, j-1, { icon: icon,
+      title: window["dailyWeekday" + j], 
+      subtitle: window["dailyTempMax" + j] + ' ' + window["dailySummary" + j]
     });
   }
   weatherMenu.show();
@@ -160,12 +160,12 @@ mainWind.on('click', 'select', function(e) {
       });
       hourlyMenu.section(0, { title: "Today's Weather" });
       hourlyMenu.item(0, 0, { icon: icon,
-        title: 'Now', subtitle: currentTemperature + ": " + currentSummary
+        title: 'Now', subtitle: currentTemperature + " " + currentSummary
       });
       for (i = 1; i < 25; i++) {
         hourlyMenu.item(0, i, { icon: icon,
           title: window["hourlyTime" + i],
-          subtitle: window["hourlyTemp" + i] + ': ' + window["hourlySummary" + i]
+          subtitle: window["hourlyTemp" + i] + " " + window["hourlySummary" + i]
         });
       }
       hourlyMenu.show();
@@ -192,10 +192,10 @@ mainWind.on('click', 'select', function(e) {
   
   // function determine temp
   function determinetemp(data) {
-    var temperature = Math.round(data.apparentTemperature) + '°';
+    var temperature = Math.round(data.temperature) + '°';
     if ( options !== null ) {
       if ( options.temp_degrees === "celsius" ) {
-        temperature = Math.round((data.apparentTemperature - 32) * 5 / 9) + '°';
+        temperature = Math.round((data.temperature - 32) * 5 / 9) + '°';
       }
     }
     window["hourlyTemp" + i] = temperature;
