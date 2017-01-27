@@ -18,7 +18,7 @@ var Settings = require('pebblejs/settings');
 var gpsLatitude;
 var gpsLongitude;
 var token = '6dc8bde763d1816f2e3f249ec11ee48f';
-console.log('Saved apidata: ' + Settings.data('weatherapi'));
+//console.log('Saved apidata: ' + Settings.data('weatherapi'));
 collectgpslocation(collectweatherdata);
 
 // definitions
@@ -89,11 +89,11 @@ mainWind.on('click', 'select', function(e) {
 
   // load collected api data
   var apidata = Settings.data('weatherapi');
-  console.log('Loaded apidata: ' + apidata);
+  //console.log('Loaded apidata: ' + apidata);
   
   // load options
   var options = JSON.parse(localStorage.getItem('clay-settings'));
-  console.log('Loaded temp_degrees option: ' + options.temp_degrees);
+  //console.log('Loaded temp_degrees option: ' + options.temp_degrees);
   
   // determine currently api data
   var currentData = apidata.currently;
@@ -104,16 +104,29 @@ mainWind.on('click', 'select', function(e) {
       currentTemperature = Math.round((currentData.apparentTemperature - 32) * 5 / 9) + '°';
     }
   }
-  
+
   // determine hourly api data
   for (var i = 1; i < 25; i++) {
     var hourlyData = apidata.hourly.data[i];
     determinetime(hourlyData);
     determinetemp(hourlyData);
-    determinesumm(hourlyData);
-    console.log('hourlyTime' + i + ': ' + window["hourlyTime" + i]);
-    console.log('hourlyTemp' + i + ': ' + window["hourlyTemp" + i]);
-    console.log('hourlySumm' + i + ': ' + window["hourlySumm" + i]);
+    determinesummary(hourlyData, "hourlySummary", i);
+    //console.log('hourlyTime' + i + ': ' + window["hourlyTime" + i]);
+    //console.log('hourlyTemp' + i + ': ' + window["hourlyTemp" + i]);
+    //console.log('hourlySummary' + i + ': ' + window["hourlySummary" + i]);
+  }
+  
+  // determine daily api data
+  for (var j = 0; j < 8; j++) {
+    var dailyData = apidata.daily.data[j];
+    determineweekday(dailyData);
+    determinetempmin(dailyData);
+    determinetempmax(dailyData);
+    determinesummary(dailyData, "dailySummary", j);
+    //console.log('dailyWeekday' + j + ': ' + window["dailyWeekday" + j]);
+    //console.log('dailyTempMin' + j + ': ' + window["dailyTempMin" + j]);
+    //console.log('dailyTempMax' + j + ': ' + window["dailyTempMax" + j]);
+    //console.log('dailySummary' + j + ': ' + window["dailySummary" + j]);
   }
 
   // display screen
@@ -122,10 +135,18 @@ mainWind.on('click', 'select', function(e) {
     backgroundColor: backgroundColor, highlightTextColor: highlightTextColor,
     status: { separator: 'none', color: textColor, backgroundColor: backgroundColor }
   });
-  weatherMenu.section(0, { title: 'Current Weather' });
-  weatherMenu.item(0, 0, { //icon: icon,
-    title: currentSummary, subtitle: 'Feels Like: ' + currentTemperature,
+  weatherMenu.section(0, { title: "Today" });
+  weatherMenu.item(0, 0, { icon: icon,
+    title: window.dailySummary1, 
+    subtitle: 'Min: ' + window.dailyTempMin1 + ' Max: ' + window.dailyTempMax1
   });
+  for (j = 1; j < 8; j++) {
+    weatherMenu.section(j, { title: window["dailyWeekday" + j] });
+    weatherMenu.item(j, 0, { icon: icon,
+      title: window["dailySummary" + j], 
+      subtitle: 'Min: ' + window["dailyTempMin" + j] + ' Max: ' + window["dailyTempMax" + j]
+    });
+  }
   weatherMenu.show();
   mainWind.hide();
 
@@ -144,13 +165,12 @@ mainWind.on('click', 'select', function(e) {
       for (i = 1; i < 25; i++) {
         hourlyMenu.item(0, i, { icon: icon,
           title: window["hourlyTime" + i],
-          subtitle: window["hourlyTemp" + i] + ': ' + window["hourlySumm" + i]
+          subtitle: window["hourlyTemp" + i] + ': ' + window["hourlySummary" + i]
         });
       }
       hourlyMenu.show();
     }
   });
-
 
   // function determine time
   function determinetime(data) {
@@ -162,21 +182,52 @@ mainWind.on('click', 'select', function(e) {
     window["hourlyTime" + i] = hour + ":" + minutes;
   }
   
+  // function determine weekday
+  function determineweekday(data) {
+    var time = new Date(data.time*1000);
+    var daynames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    var weekday = daynames[time.getDay()];
+    window["dailyWeekday" + j] = weekday;
+  }
+  
   // function determine temp
   function determinetemp(data) {
-    var temp = Math.round(data.apparentTemperature) + '°';
+    var temperature = Math.round(data.apparentTemperature) + '°';
     if ( options !== null ) {
       if ( options.temp_degrees === "celsius" ) {
-        temp = Math.round((data.apparentTemperature - 32) * 5 / 9) + '°';
+        temperature = Math.round((data.apparentTemperature - 32) * 5 / 9) + '°';
       }
     }
-    window["hourlyTemp" + i] = temp;
+    window["hourlyTemp" + i] = temperature;
+  }
+  
+  // function determine temp min
+  function determinetempmin(data) {
+    var temperature = Math.round(data.temperatureMin) + '°';
+    if ( options !== null ) {
+      if ( options.temp_degrees === "celsius" ) {
+        temperature = Math.round((data.temperatureMin - 32) * 5 / 9) + '°';
+      }
+    }
+    window["dailyTempMin" + j] = temperature;
+  }
+  
+  // function determine temp max
+  function determinetempmax(data) {
+    var temperature = Math.round(data.temperatureMax) + '°';
+    if ( options !== null ) {
+      if ( options.temp_degrees === "celsius" ) {
+        temperature = Math.round((data.temperatureMax - 32) * 5 / 9) + '°';
+      }
+    }
+    window["dailyTempMax" + j] = temperature;
   }
 
-  // function determine summ
-  function determinesumm(data) {
-    var summ = data.summary;
-    window["hourlySumm" + i] = summ;
+  // function determine summary
+  function determinesummary(data, variable, index) {
+    var summary = data.summary;
+    var cutdown = summary.split(' ').slice(0,2).join(' ');
+    window[variable + index] = cutdown;
   }
 });
 
@@ -184,11 +235,11 @@ mainWind.on('click', 'select', function(e) {
 
 function collectgpslocation(callback) {
   navigator.geolocation.getCurrentPosition(function(api) {
-    console.log('Collected gpsLocation: ' + api.coords);
+    //console.log('Collected gpsLocation: ' + api.coords);
     gpsLatitude = api.coords.latitude;
     gpsLongitude = api.coords.longitude;
-    console.log('Latitude gpsLocation: ' + gpsLatitude);
-    console.log('Longitude gpsLocation: ' + gpsLongitude);
+    //console.log('Latitude gpsLocation: ' + gpsLatitude);
+    //console.log('Longitude gpsLocation: ' + gpsLongitude);
     callback();
   });
 }
@@ -196,10 +247,10 @@ function collectgpslocation(callback) {
 function collectweatherdata() {
   var url = 'https://api.darksky.net/forecast/' + token + '/' +
   gpsLatitude + ',' + gpsLongitude + '?exclude=[minutely,alerts,flags]';
-  console.log('url: ' + url);
+  //console.log('url: ' + url);
   ajax({ url: url, method: 'get', type: 'json' },
     function(api){
-      console.log('Collected apidata: ' + api);
+      //console.log('Collected apidata: ' + api);
       Settings.data('weatherapi', api);
     }
   );
