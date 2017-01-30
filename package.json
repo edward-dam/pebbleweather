@@ -5,12 +5,12 @@
         "pebblejs": "^1.0.0"
     },
     "keywords": [],
-    "name": "weather-v1.1",
+    "name": "weather-v1.2",
     "pebble": {
         "capabilities": [
             "configurable"
         ],
-        "displayName": "Weather v1.1",
+        "displayName": "Weather v1.2",
         "enableMultiJS": true,
         "messageKeys": [
             "message_keys",
@@ -19,6 +19,50 @@
         "projectType": "native",
         "resources": {
             "media": [
+                {
+                    "file": "images/mist_icon.png",
+                    "name": "MIST_ICON",
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/snow_icon.png",
+                    "name": "SNOW_ICON",
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/rain_icon.png",
+                    "name": "RAIN_ICON",
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite"
+                    ],
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/sun_icon.png",
+                    "name": "SUN_ICON",
+                    "targetPlatforms": [
+                        "aplite",
+                        "basalt",
+                        "chalk",
+                        "diorite"
+                    ],
+                    "type": "bitmap"
+                },
                 {
                     "file": "images/splash.png",
                     "name": "SPLASH",
@@ -56,5 +100,5 @@
             "watchface": false
         }
     },
-    "version": "1.10.0"
+    "version": "1.20.0"
 }
