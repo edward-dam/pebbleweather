@@ -47,8 +47,8 @@ function position(height){
 var mainWind = new UI.Window();
 var mainText = new UI.Text({size: size, backgroundColor: backgroundColor, textAlign: textAlign});
 var mainImage = new UI.Image({size: size});
-mainText.position(position(-65));
-mainImage.position(position(-70));
+mainText.position(position(-60));
+mainImage.position(position(-65));
 mainText.font(fontLarge);
 mainText.text('WEATHER');
 mainImage.image('images/splash.png');
